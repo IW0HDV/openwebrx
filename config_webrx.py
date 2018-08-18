@@ -40,16 +40,16 @@ server_hostname="localhost" # If this contains an incorrect value, the web UI ma
 max_clients=20
 
 # ==== Web GUI configuration ====
-receiver_name="[Callsign]"
-receiver_location="Budapest, Hungary"
-receiver_qra="JN97ML"
-receiver_asl=200
-receiver_ant="Longwire"
-receiver_device="RTL-SDR"
-receiver_admin="example@example.com"
-receiver_gps=(47.000000,19.000000)
+receiver_name="IW0HDV"
+receiver_location="Rome, Italy"
+receiver_qra="JN61FU"
+receiver_asl=20
+receiver_ant="Mag Loop"
+receiver_device="Perseus"
+receiver_admin="andrew@montefusco.com"
+receiver_gps=(41.890000,12.490000)
 photo_height=350
-photo_title="Panorama of Budapest from Schönherz Zoltán Dormitory"
+photo_title="Colosseo, Roma, Italia"
 photo_desc="""
 You can add your own background photo and receiver information.<br />
 Receiver is operated by: <a href="mailto:%[RX_ADMIN]">%[RX_ADMIN]</a><br/>
@@ -72,7 +72,7 @@ fft_fps=9
 fft_size=4096
 samp_rate = 250000
 
-center_freq = 145525000
+center_freq = 7050000
 rf_gain = 5 #in dB. For an RTL-SDR, rf_gain=0 will set the tuner to auto gain mode, else it will be in manual gain mode.
 ppm = 0
 
@@ -91,8 +91,8 @@ start_rtl_thread=True
 
 # >> RTL-SDR via rtl_sdr
 
-start_rtl_command="rtl_sdr -s {samp_rate} -f {center_freq} -p {ppm} -g {rf_gain} -".format(rf_gain=rf_gain, center_freq=center_freq, samp_rate=samp_rate, ppm=ppm)
-format_conversion="csdr convert_u8_f"
+#start_rtl_command="rtl_sdr -s {samp_rate} -f {center_freq} -p {ppm} -g {rf_gain} -".format(rf_gain=rf_gain, center_freq=center_freq, samp_rate=samp_rate, ppm=ppm)
+#format_conversion="csdr convert_u8_f"
 
 #start_rtl_command="hackrf_transfer -s {samp_rate} -f {center_freq} -g {rf_gain} -l16 -a0 -q -r-".format(rf_gain=rf_gain, center_freq=center_freq, samp_rate=samp_rate, ppm=ppm)
 #format_conversion="csdr convert_s8_f"
@@ -129,6 +129,39 @@ To use a HackRF, compile the HackRF host tools from its "stdout" branch:
 # >> gr-osmosdr signal source using GNU Radio (follow this guide: https://github.com/simonyiszk/openwebrx/wiki/Using-GrOsmoSDR-as-signal-source)
 #start_rtl_command="cat /tmp/osmocom_fifo"
 #format_conversion=""
+
+#
+# Microtelecom Perseus
+#
+"""
+To use a Microtelecom Perseus, compile the libperseus-sdr library that contains a suitable host tool (really the test program:
+
+ sudo apt-get install libusb-1.0-0-dev
+ cd /tmp
+ wget https://github.com/amontefusco/libperseus-sdr/releases/download/v0.7.3/libperseus_sdr-0.7.3.tar.gz
+ tar -zxvf libperseus_sdr-0.7.3.tar.gz
+ cd libperseus_sdr-0.7.3/
+ ./configure
+ make
+ sudo make install
+ sudo ldconfig
+"""
+
+start_rtl_command="perseustest -s {samp_rate} -f {center_freq} -p -t 1000 -a -o -".format(center_freq=center_freq, samp_rate=samp_rate)
+format_conversion=""
+
+
+# 
+# AirSpy
+#
+#
+#samp_rate = 2500000 #can only be 2500000 or 10000000
+#center_freq = 98000000
+#rf_gain = 8
+#bias_tee = 0
+#start_rtl_command = "airspy_rx -t 0 -f {center_freq}  -r /dev/stdout -a 1 -v10 -m5 -l7  -b {bias_tee}".format(bias_tee=bias_tee, rf_gain=rf_gain, center_freq=str(center_freq/1e6), samp_rate_switch=(0 if samp_rate==10000000 else 1))
+#format_conversion = ""
+#
 
 # ==== Misc options ====
 
