@@ -45,7 +45,7 @@ receiver_location="Budapest, Hungary"
 receiver_qra="JN97ML"
 receiver_asl=200
 receiver_ant="Longwire"
-receiver_device="RTL-SDR"
+receiver_device="AirSpyHF+"
 receiver_admin="example@example.com"
 receiver_gps=(47.000000,19.000000)
 photo_height=350
@@ -72,21 +72,21 @@ fft_size=4096 #Should be power of 2
 fft_voverlap_factor=0.3 #If fft_voverlap_factor is above 0, multiple FFTs will be used for creating a line on the diagram.
 
 # samp_rate = 250000
-samp_rate = 2400000
-center_freq = 144250000
-rf_gain = 5 #in dB. For an RTL-SDR, rf_gain=0 will set the tuner to auto gain mode, else it will be in manual gain mode.
+samp_rate = 768000
+center_freq = 7160000
+rf_gain = 0 #in dB. For an RTL-SDR, rf_gain=0 will set the tuner to auto gain mode, else it will be in manual gain mode.
 ppm = 0
 
 audio_compression="adpcm" #valid values: "adpcm", "none"
 fft_compression="adpcm" #valid values: "adpcm", "none"
 
-digimodes_enable=True #Decoding digimodes come with higher CPU usage. 
+digimodes_enable=True #Decoding digimodes come with higher CPU usage.
 digimodes_fft_size=1024
 
 start_rtl_thread=True
 
 """
-Note: if you experience audio underruns while CPU usage is 100%, you can: 
+Note: if you experience audio underruns while CPU usage is 100%, you can:
 - decrease `samp_rate`,
 - set `fft_voverlap_factor` to 0,
 - decrease `fft_fps` and `fft_size`,
@@ -101,29 +101,15 @@ Note: if you experience audio underruns while CPU usage is 100%, you can:
 # Check here: https://github.com/simonyiszk/openwebrx/wiki#guides-for-receiver-hardware-support #
 #################################################################################################
 
-# You can use other SDR hardware as well, by giving your own command that outputs the I/Q samples... Some examples of configuration are available here (default is RTL-SDR):
-
-# >> RTL-SDR via rtl_sdr
-start_rtl_command="rtl_sdr -s {samp_rate} -f {center_freq} -p {ppm} -g {rf_gain} -".format(rf_gain=rf_gain, center_freq=center_freq, samp_rate=samp_rate, ppm=ppm)
-format_conversion="csdr convert_u8_f"
-
-#lna_gain=8
-#rf_amp=1
-#start_rtl_command="hackrf_transfer -s {samp_rate} -f {center_freq} -g {rf_gain} -l{lna_gain} -a{rf_amp} -r-".format(rf_gain=rf_gain, center_freq=center_freq, samp_rate=samp_rate, ppm=ppm, rf_amp=rf_amp, lna_gain=lna_gain)
-#format_conversion="csdr convert_s8_f"
-"""
-To use a HackRF, compile the HackRF host tools from its "stdout" branch:
- git clone https://github.com/mossmann/hackrf/
- cd hackrf
- git fetch
- git checkout origin/stdout
- cd host
- mkdir build
- cd build
- cmake .. -DINSTALL_UDEV_RULES=ON
- make
- sudo make install
-"""
+#
+# AirspyHF+
+#
+# see build instruction on https://github.com/simonyiszk/openwebrx/wiki#guides-for-receiver-hardware-support
+#
+# -z option needed to cope with receivers running old firmware
+#
+start_rtl_command = "airspyhf_rx -f{center_freq} -r /dev/stdout -a{samp_rate} -z".format(center_freq=str(center_freq/1e6), samp_rate=samp_rate)
+format_conversion = "" # not needed as the software already emits floating point I/Q
 
 # >> Sound card SDR (needs ALSA)
 # I did not have the chance to properly test it.
@@ -141,10 +127,10 @@ To use a HackRF, compile the HackRF host tools from its "stdout" branch:
 #start_rtl_command="(while true; do cat my_iq_file.raw; done) | csdr flowcontrol {sr} 20 ".format(sr=samp_rate*2*1.05)
 #format_conversion="csdr convert_u8_f"
 
-#>> The rx_sdr command works with a variety of SDR harware: RTL-SDR, HackRF, SDRplay, UHD, Airspy, Red Pitaya, audio devices, etc. 
+#>> The rx_sdr command works with a variety of SDR harware: RTL-SDR, HackRF, SDRplay, UHD, Airspy, Red Pitaya, audio devices, etc.
 # It will auto-detect your SDR hardware if the following tools are installed:
-# * the vendor provided driver and library, 
-# * the vendor-specific SoapySDR wrapper library, 
+# * the vendor provided driver and library,
+# * the vendor-specific SoapySDR wrapper library,
 # * and SoapySDR itself.
 # Check out this article on the OpenWebRX Wiki: https://github.com/simonyiszk/openwebrx/wiki/Using-rx_tools-with-OpenWebRX/
 #start_rtl_command="rx_sdr -F CF32 -s {samp_rate} -f {center_freq} -p {ppm} -g {rf_gain} -".format(rf_gain=rf_gain, center_freq=center_freq, samp_rate=samp_rate, ppm=ppm)
